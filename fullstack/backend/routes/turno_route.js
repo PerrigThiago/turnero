@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listarTurnos, crearTurno } from "../controllers/turnoController.js";
+import { crearTurno, listarTurnos } from "../controllers/turnoController.js";
 
 const router = Router();
 

@@ -1,35 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [turnos, setTurnos] = useState([]);
+  const [nombre, setNombre] = useState("");
+  const [fecha, setFecha] = useState("");
+
+  // Obtener turnos
+  const obtenerTurnos = async () => {
+    const res = await fetch("http://localhost:3000/api/turnos");
+    const data = await res.json();
+    setTurnos(data);
+  };
+
+  // Crear turno
+  const crearTurno = async () => {
+    if (!nombre || !fecha) return;
+
+    await fetch("http://localhost:3000/api/turnos", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ nombre, fecha }),
+    });
+
+    setNombre("");
+    setFecha("");
+    obtenerTurnos();
+  };
+
+  useEffect(() => {
+    obtenerTurnos();
+  }, []);
 
   return (
-    <>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Turnero</h1>
+
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+
+        <input
+          type="date"
+          value={fecha}
+          onChange={(e) => setFecha(e.target.value)}
+        />
+
+        <button onClick={crearTurno}>
+          Crear
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      <hr />
+
+      <h2>Turnos</h2>
+
+      {turnos.map((turno) => (
+        <div key={turno.id}>
+          <strong>{turno.nombre}</strong> -{" "}
+          {new Date(turno.fecha).toLocaleDateString()}
+        </div>
+      ))}
+    </div>
+  );
 }
 
-export default App
+export default App;
