@@ -14,3 +14,14 @@ export const getTurnos = async () => {
   );
   return result.rows;
 };
+
+export const updateTurno = async (id, detalle) => {
+  const result = await pool.query(
+    `UPDATE turno
+     SET detalle = $1
+     WHERE id = $2
+     RETURNING *`,
+    [detalle, id]
+  );
+  return result.rows[0];
+};

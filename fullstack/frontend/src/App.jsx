@@ -1,73 +1,92 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-function App() {
+const API_URL = "http://localhost:3000/api/turnos";
+
+function Turnos() {
   const [turnos, setTurnos] = useState([]);
-  const [nombre, setNombre] = useState("");
-  const [fecha, setFecha] = useState("");
+  const [detalle, setDetalle] = useState("");
+  const [editandoId, setEditandoId] = useState(null);
 
-  // Obtener turnos
   const obtenerTurnos = async () => {
-    const res = await fetch("http://localhost:3000/api/turnos");
+    const res = await fetch(API_URL);
     const data = await res.json();
     setTurnos(data);
-  };
-
-  // Crear turno
-  const crearTurno = async () => {
-    if (!nombre || !fecha) return;
-
-    await fetch("http://localhost:3000/api/turnos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ nombre, fecha }),
-    });
-
-    setNombre("");
-    setFecha("");
-    obtenerTurnos();
   };
 
   useEffect(() => {
     obtenerTurnos();
   }, []);
 
-  return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>Turnero</h1>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      <div>
+    if (!detalle.trim()) return;
+
+    if (editandoId) {
+      await fetch(`${API_URL}/${editandoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ detalle }),
+      });
+      setEditandoId(null);
+    } else {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ detalle }),
+      });
+    }
+
+    setDetalle("");
+    obtenerTurnos();
+  };
+
+  const eliminarTurno = async (id) => {
+    await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
+    obtenerTurnos();
+  };
+  
+  const editarTurno = (turno) => {
+    setDetalle(turno.detalle);
+    setEditandoId(turno.id);
+  };
+
+  return (
+    <div style={{ padding: "30px", fontFamily: "Arial" }}>
+      <h2>Gestión de Turnos</h2>
+
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Detalle del turno"
+          value={detalle}
+          onChange={(e) => setDetalle(e.target.value)}
         />
-
-        <input
-          type="date"
-          value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
-        />
-
-        <button onClick={crearTurno}>
-          Crear
+        <button type="submit">
+          {editandoId ? "Actualizar" : "Agregar"}
         </button>
-      </div>
+      </form>
 
       <hr />
 
-      <h2>Turnos</h2>
-
-      {turnos.map((turno) => (
-        <div key={turno.id}>
-          <strong>{turno.nombre}</strong> -{" "}
-          {new Date(turno.fecha).toLocaleDateString()}
-        </div>
-      ))}
+      <ul>
+        {turnos.map((turno) => (
+          <li key={turno.id}>
+            <strong>{turno.detalle}</strong> -{" "}
+            {new Date(turno.fecha_registro).toLocaleString()}
+            <button onClick={() => editarTurno(turno)}>
+              Editar
+            </button>
+            <button onClick={() => eliminarTurno(turno.id)}>
+              Eliminar
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-export default App;
+export default Turnos;
