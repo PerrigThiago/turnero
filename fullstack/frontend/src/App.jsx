@@ -1,35 +1,92 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+const API_URL = "http://localhost:3000/api/turnos";
+
+function Turnos() {
+  const [turnos, setTurnos] = useState([]);
+  const [detalle, setDetalle] = useState("");
+  const [editandoId, setEditandoId] = useState(null);
+
+  const obtenerTurnos = async () => {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    setTurnos(data);
+  };
+
+  useEffect(() => {
+    obtenerTurnos();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!detalle.trim()) return;
+
+    if (editandoId) {
+      await fetch(`${API_URL}/${editandoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ detalle }),
+      });
+      setEditandoId(null);
+    } else {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ detalle }),
+      });
+    }
+
+    setDetalle("");
+    obtenerTurnos();
+  };
+
+  const eliminarTurno = async (id) => {
+    await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
+    obtenerTurnos();
+  };
+  
+  const editarTurno = (turno) => {
+    setDetalle(turno.detalle);
+    setEditandoId(turno.id);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div style={{ padding: "30px", fontFamily: "Arial" }}>
+      <h2>Gestión de Turnos</h2>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Detalle del turno"
+          value={detalle}
+          onChange={(e) => setDetalle(e.target.value)}
+        />
+        <button type="submit">
+          {editandoId ? "Actualizar" : "Agregar"}
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      </form>
+
+      <hr />
+
+      <ul>
+        {turnos.map((turno) => (
+          <li key={turno.id}>
+            <strong>{turno.detalle}</strong> -{" "}
+            {new Date(turno.fecha_registro).toLocaleString()}
+            <button onClick={() => editarTurno(turno)}>
+              Editar
+            </button>
+            <button onClick={() => eliminarTurno(turno.id)}>
+              Eliminar
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
-export default App
+export default Turnos;
