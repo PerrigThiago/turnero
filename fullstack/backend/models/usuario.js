@@ -1,7 +1,11 @@
 import pool from "../config/bd.js";
 
-export const createUsuario = async (id, nombre, apellido, dni, telefono) => {
-
+export const createUsuario = async (nombre, apellido, dni, telefono) => {
+    const result = await pool.query(
+        "INSERT INTO usuario (nombre, apellido, dni, telefono) VALUES ($1, $2, $3, $4) RETURNING *",
+        [nombre, apellido, dni, telefono]
+    );
+    return result.rows;
 };
 
 export const getUsuario = async () => {
@@ -20,7 +24,8 @@ export const getUsuarioById = async (id) => {
 
 export const updateUsuario = async (id, nombre, apellido, dni, telefono) => {
     const result = await pool.query(
-        "UPDATE usuario SET * WHERE id = $N RETURNING *"
+        "UPDATE usuario SET nombre = $2, apellido = $3, dni = $4, telefono = $5 WHERE id = $1 RETURNING *",
+        [id, nombre, apellido, dni, telefono]
     );
     return result.rows;
 };
