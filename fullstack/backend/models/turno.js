@@ -1,9 +1,11 @@
 import pool from "../config/bd.js";
 
-export const createTurno = async (detalle) => {
+export const createTurno = async (detalle, fecha_turno) => {
   const result = await pool.query(
-    "INSERT INTO turno (detalle, fecha_registro) VALUES ($1, NOW()) RETURNING *",
-    [detalle]
+    `INSERT INTO turno (detalle, fecha_turno, fecha_registro)
+     VALUES ($1, $2, NOW())
+     RETURNING *`,
+    [detalle, fecha_turno]
   );
   return result.rows[0];
 };
@@ -24,4 +26,11 @@ export const updateTurno = async (id, detalle) => {
     [detalle, id]
   );
   return result.rows[0];
+};
+
+export const deleteTurno = async (id) => {
+  await pool.query(
+    "DELETE FROM turno WHERE id = $1",
+    [id]
+  );
 };

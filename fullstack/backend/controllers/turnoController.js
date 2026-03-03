@@ -40,20 +40,19 @@ export const obtenerTurno = async (req, res) => {
 
 export const crearTurno = async (req, res) => {
   try {
-    const { detalle } = req.body;
+    const { detalle, fecha_turno } = req.body;
 
-    if (!detalle) {
-      return res.status(400).json({ error: "El detalle es obligatorio" });
-    }
+    const nuevoTurno = await Turno.createTurno(
+      detalle,
+      fecha_turno
+    );
 
-    const nuevoTurno = await Turno.createTurno(detalle);
     res.status(201).json(nuevoTurno);
   } catch (error) {
-    console.error("ERROR REAL:", error);
+    console.error(error);
     res.status(500).json({ error: "Error al crear turno" });
   }
 };
-
 export const eliminarTurno = async (req, res) => {
   try {
     const { id } = req.params;
