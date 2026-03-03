@@ -1,8 +1,8 @@
 import * as Turno from "../models/usuario.js";
 
-export const listarUsuarios = async (res) => {
+export const listarUsuarios = async (req, res) => {
   try {
-    const usuarios = await Turno.getUsuarios();
+    const usuarios = await Turno.getUsuario();
     res.json(usuarios);
     } catch (error) {
     console.error("ERROR REAL:", error);
@@ -22,16 +22,16 @@ export const obtenerUsuario = async (req, res) => {
 };
 
 export const crearUsuario = async (req, res) => {
-  try {
-    const { nombre, email } = req.body;
-    if (!nombre || !email) {
-      return res.status(400).json({ error: "El nombre y el email son obligatorios" });
-    }
-    const nuevoUsuario = await Turno.createUsuario(nombre, email);
-    res.status(201).json(nuevoUsuario);
+    try {
+        const { nombre } = req.body;
+        const { apellido } = req.body;
+        const { dni } = req.body;
+        const { telefono } = req.body;
+        const nuevoUsuario = await Turno.createUsuario(nombre, apellido, dni, telefono);
+        res.status(201).json(nuevoUsuario);
     } catch (error) {
-    console.error("ERROR REAL:", error);
-    res.status(500).json({ error: "Error al crear usuario" });
+        console.error("ERROR REAL:", error);
+        res.status(500).json({ error: "Error al crear usuario" });
     }
 };
 
