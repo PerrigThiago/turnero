@@ -1,9 +1,10 @@
-import Turnos from "./components/turno";
+import HistorialTurnos from "./components/HistorialTurnos";
 
 function App() {
   return (
     <div>
-      <Turnos />
+      <h1>Turnero</h1>
+      <HistorialTurnos />
     </div>
   );
 }
