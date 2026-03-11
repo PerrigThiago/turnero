@@ -48,7 +48,7 @@ function HistorialTurnos() {
 
     return (
         <section>
-            <h2>Historial de turnos</h2>
+            <h2 className="container">Historial de turnos</h2>
             <table>
                 <thead>
                     <tr>
