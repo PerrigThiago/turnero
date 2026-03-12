@@ -12,6 +12,7 @@ export const actualizarTurno = async (req, res) => {
     res.status(500).json({ error: "Error al actualizar turno" });
   }
 };
+
 export const listarTurnos = async (req, res) => {
   try {
     const turnos = await Turno.getTurnos();
@@ -53,6 +54,7 @@ export const crearTurno = async (req, res) => {
     res.status(500).json({ error: "Error al crear turno" });
   }
 };
+
 export const eliminarTurno = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,9 +1,7 @@
-import Turnos from "./components/turno";
-
 function App() {
   return (
     <div>
-      <Turnos />
+      <h1>Turnero</h1>
     </div>
   );
 }
