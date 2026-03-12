@@ -9,6 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/turnos", turnosRoutes);
-app.use("/api/usuario", usuarioRoutes);
+app.use("/api/usuarios", usuarioRoutes);
 
 export default app;

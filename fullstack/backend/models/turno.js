@@ -11,9 +11,22 @@ export const createTurno = async (detalle, fecha_turno) => {
 };
 
 export const getTurnos = async () => {
-  const result = await pool.query(
-    "SELECT * FROM turno ORDER BY fecha_registro DESC"
-  );
+  const result = await pool.query(`
+    SELECT 
+      t.id,
+      t.detalle,
+      t.fecha_turno,
+      t.fecha_registro,
+      u.nombre,
+      u.apellido,
+      u.dni,
+      u.telefono
+    FROM turno t
+    LEFT JOIN usuario u
+      ON u.id_turno = t.id
+    ORDER BY t.fecha_registro DESC
+  `);
+
   return result.rows;
 };
 
