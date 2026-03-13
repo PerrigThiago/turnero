@@ -1,0 +1,155 @@
+/* ─── HISTORIAL — agregar al final de turno.css ──────────── */
+
+/* Stats row */
+.historial-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  background: #111114;
+  border: 1px solid #1e1e24;
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-card--accent {
+  border-color: rgba(200, 240, 90, 0.25);
+  background: rgba(200, 240, 90, 0.04);
+}
+
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #f0ede6;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.stat-card--accent .stat-value {
+  color: #c8f05a;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #55555f;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Filters */
+.historial-filters {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+/* Table layout */
+.historial-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.historial-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.historial-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #0b0b0e;
+}
+
+.historial-table-header {
+  border-bottom: 1px solid #1e1e24;
+}
+
+.historial-table-header th {
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.historial-col-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #45454f;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.historial-row {
+  background: #0c0c0f;
+  border-bottom: 1px solid #15151c;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.historial-row:nth-child(even) {
+  background: #09090c;
+}
+
+.historial-row:hover {
+  background: #111119;
+  border-color: #2a2a32;
+}
+
+.historial-row td {
+  padding: 12px 14px;
+  vertical-align: middle;
+}
+
+.historial-fecha {
+  font-size: 12px;
+  color: #8a8a98;
+  white-space: nowrap;
+  text-transform: capitalize;
+  line-height: 1.4;
+}
+
+.historial-cell {
+  font-size: 13px;
+  color: #d4d1cb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historial-cell--muted {
+  color: #55555f;
+  font-size: 12px;
+}
+
+.historial-cell--motivo {
+  color: #8a8a98;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive historial */
+@media (max-width: 1100px) {
+  .historial-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .historial-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .historial-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
