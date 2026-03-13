@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./turno.css";
@@ -8,24 +9,25 @@ const API_USUARIOS = "http://localhost:3000/api/usuarios";
 
 function Turnos() {
   const [turnos, setTurnos] = useState([]);
-
-  // Campos de turno (tabla turno)
   const [detalle, setDetalle] = useState("");
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
   const [horaSeleccionada, setHoraSeleccionada] = useState(null);
-
-  // Campos de usuario (tabla usuario)
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [dni, setDni] = useState("");
   const [telefono, setTelefono] = useState("");
-
   const [guardado, setGuardado] = useState(false);
   const [error, setError] = useState(null);
 
   const horarios = [
-    "09:00", "10:00", "11:00", "12:00",
-    "14:00", "15:00", "16:00", "17:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
   ];
 
   const obtenerTurnos = async () => {
@@ -54,14 +56,11 @@ function Turnos() {
   const handleSubmit = async () => {
     if (!horaSeleccionada || !nombre) return;
     setError(null);
-
     try {
-      // 1. Armar fecha+hora combinada
       const fechaConHora = new Date(fechaSeleccionada);
       const [hh, mm] = horaSeleccionada.split(":");
       fechaConHora.setHours(parseInt(hh), parseInt(mm), 0, 0);
 
-      // 2. Crear el turno
       const resTurno = await fetch(API_TURNOS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,11 +69,9 @@ function Turnos() {
           fecha_turno: fechaConHora.toISOString(),
         }),
       });
-
       if (!resTurno.ok) throw new Error("Error al crear el turno");
       const turnoCreado = await resTurno.json();
 
-      // 3. Crear el usuario vinculado al turno
       const resUsuario = await fetch(API_USUARIOS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,7 +83,6 @@ function Turnos() {
           id_turno: turnoCreado.id,
         }),
       });
-
       if (!resUsuario.ok) throw new Error("Error al crear el usuario");
 
       setGuardado(true);
@@ -103,13 +99,12 @@ function Turnos() {
     obtenerTurnos();
   };
 
-  // Filtrar turnos del día seleccionado
-  const turnosDelDia = turnos.filter((turno) => {
-    const fechaTurno = new Date(turno.fecha_turno);
-    return fechaTurno.toDateString() === fechaSeleccionada.toDateString();
-  });
+  const turnosDelDia = turnos.filter(
+    (t) =>
+      new Date(t.fecha_turno).toDateString() ===
+      fechaSeleccionada.toDateString(),
+  );
 
-  // Extraer hora desde fecha_turno para marcar ocupados
   const horasOcupadas = turnosDelDia.map((t) => {
     const d = new Date(t.fecha_turno);
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -124,32 +119,28 @@ function Turnos() {
 
   return (
     <div className="page">
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-logo">
           <span className="logo-icon">✦</span>
           <span className="logo-text">Agenda</span>
         </div>
-
         <nav className="sidebar-nav">
-          <div className="nav-item active">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+          >
             <span className="nav-icon">◈</span>
             <span>Turnos</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">◇</span>
-            <span>Clientes</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">◻</span>
-            <span>Servicios</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">◯</span>
-            <span>Reportes</span>
-          </div>
+          </NavLink>
+          <NavLink
+            to="/historial"
+            className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+          >
+            <span className="nav-icon">◷</span>
+            <span>Historial</span>
+          </NavLink>
         </nav>
-
         <div className="sidebar-footer">
           <div className="avatar">A</div>
           <div className="avatar-info">
@@ -159,9 +150,7 @@ function Turnos() {
         </div>
       </aside>
 
-      {/* MAIN */}
       <main className="main">
-        {/* HEADER */}
         <header className="topbar">
           <div className="topbar-left">
             <h1 className="page-title">Agenda de Turnos</h1>
@@ -169,12 +158,15 @@ function Turnos() {
           </div>
           <div className="topbar-right">
             <div className="date-badge">
-              {new Date().toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" })}
+              {new Date().toLocaleDateString("es-AR", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+              })}
             </div>
           </div>
         </header>
 
-        {/* FORM CARD */}
         <section className="form-card">
           <div className="form-card-header">
             <span className="form-card-title">Datos del turno</span>
@@ -230,7 +222,6 @@ function Turnos() {
           {error && <p className="form-error">{error}</p>}
         </section>
 
-        {/* CALENDARIO + HORARIOS */}
         <div className="booking-grid">
           <section className="cal-card">
             <div className="card-header">
@@ -248,7 +239,6 @@ function Turnos() {
               <span className="card-title">Horarios disponibles</span>
               <span className="selected-date-badge">{fechaFormateada}</span>
             </div>
-
             <div className="hours-grid">
               {horarios.map((hora) => {
                 const ocupado = horasOcupadas.includes(hora);
@@ -262,19 +252,19 @@ function Turnos() {
                   >
                     <span className="hour-text">{hora}</span>
                     {ocupado && <span className="hour-tag">Ocupado</span>}
-                    {seleccionado && !ocupado && <span className="hour-tag">Seleccionado</span>}
+                    {seleccionado && !ocupado && (
+                      <span className="hour-tag">Seleccionado</span>
+                    )}
                   </button>
                 );
               })}
             </div>
-
             {horaSeleccionada && (
               <div className="selection-summary">
                 <span>📅 {fechaFormateada}</span>
                 <span>🕐 {horaSeleccionada}</span>
               </div>
             )}
-
             <button
               className={`save-btn ${guardado ? "guardado" : ""}`}
               onClick={handleSubmit}
@@ -285,13 +275,11 @@ function Turnos() {
           </section>
         </div>
 
-        {/* LISTA DEL DÍA */}
         <section className="list-card">
           <div className="card-header">
             <span className="card-title">Turnos del día</span>
             <span className="count-badge">{turnosDelDia.length} turnos</span>
           </div>
-
           {turnosDelDia.length === 0 ? (
             <div className="empty-state">
               <span className="empty-icon">◌</span>
@@ -300,7 +288,9 @@ function Turnos() {
           ) : (
             <div className="turnos-list">
               {turnosDelDia
-                .sort((a, b) => new Date(a.fecha_turno) - new Date(b.fecha_turno))
+                .sort(
+                  (a, b) => new Date(a.fecha_turno) - new Date(b.fecha_turno),
+                )
                 .map((t) => {
                   const d = new Date(t.fecha_turno);
                   const horaStr = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -308,8 +298,12 @@ function Turnos() {
                     <div key={t.id} className="turno-row">
                       <div className="turno-hora">{horaStr}</div>
                       <div className="turno-info">
-                        <span className="turno-usuario">{t.nombre} {t.apellido}</span>
-                        {t.detalle && <span className="turno-servicio">{t.detalle}</span>}
+                        <span className="turno-usuario">
+                          {t.nombre} {t.apellido}
+                        </span>
+                        {t.detalle && (
+                          <span className="turno-servicio">{t.detalle}</span>
+                        )}
                       </div>
                       {t.dni && <div className="turno-dir">DNI: {t.dni}</div>}
                       <button
