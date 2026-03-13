@@ -42,8 +42,17 @@ export const updateTurno = async (id, detalle) => {
 };
 
 export const deleteTurno = async (id) => {
+
+  // borrar usuario relacionado
+  await pool.query(
+    "DELETE FROM usuario WHERE id_turno = $1",
+    [id]
+  );
+
+  // borrar turno
   await pool.query(
     "DELETE FROM turno WHERE id = $1",
     [id]
   );
 };
+
