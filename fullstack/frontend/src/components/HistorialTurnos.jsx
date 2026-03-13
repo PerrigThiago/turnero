@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import "./turno.css";
 import "./historial.css";
 
@@ -8,10 +9,8 @@ function HistorialTurnos() {
   const [turnos, setTurnos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-
-  // Filtros
   const [busqueda, setBusqueda] = useState("");
-  const [ordenDir, setOrdenDir] = useState("desc"); // "asc" | "desc"
+  const [ordenDir, setOrdenDir] = useState("desc");
 
   useEffect(() => {
     fetch(API_TURNOS)
@@ -19,22 +18,13 @@ function HistorialTurnos() {
         if (!res.ok) throw new Error("Error al obtener historial");
         return res.json();
       })
-      .then((data) => {
-        setTurnos(Array.isArray(data) ? data : []);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("No se pudo cargar el historial");
-      })
+      .then((data) => setTurnos(Array.isArray(data) ? data : []))
+      .catch((err) => setError("No se pudo cargar el historial"))
       .finally(() => setCargando(false));
   }, []);
 
-  // Normalizar lista (sin duplicados por id)
-  const turnosUnicos = Array.from(
-    new Map(turnos.map((t) => [t.id, t])).values()
-  );
+  const turnosUnicos = Array.from(new Map(turnos.map((t) => [t.id, t])).values());
 
-  // Filtrado + orden
   const turnosFiltrados = turnosUnicos
     .filter((t) => {
       const q = busqueda.toLowerCase();
@@ -45,7 +35,6 @@ function HistorialTurnos() {
         t.detalle?.toLowerCase().includes(q)
       );
     })
-    .slice()
     .sort((a, b) => {
       const da = new Date(a.fecha_turno);
       const db = new Date(b.fecha_turno);
@@ -55,10 +44,7 @@ function HistorialTurnos() {
   const formatFecha = (iso) => {
     if (!iso) return "—";
     return new Date(iso).toLocaleDateString("es-AR", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric",
+      weekday: "short", day: "numeric", month: "short", year: "numeric",
     });
   };
 
@@ -68,12 +54,9 @@ function HistorialTurnos() {
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
 
-  // Estadísticas rápidas
   const totalTurnos = turnosUnicos.length;
   const hoy = new Date().toDateString();
-  const turnosHoy = turnosUnicos.filter(
-    (t) => new Date(t.fecha_turno).toDateString() === hoy
-  ).length;
+  const turnosHoy = turnosUnicos.filter((t) => new Date(t.fecha_turno).toDateString() === hoy).length;
   const estesMes = turnosUnicos.filter((t) => {
     const d = new Date(t.fecha_turno);
     const now = new Date();
@@ -81,53 +64,33 @@ function HistorialTurnos() {
   }).length;
 
   const handleEliminar = async (id) => {
-    const confirmar = window.confirm("¿Seguro que querés eliminar este turno?");
-    if (!confirmar) return;
-
+    if (!window.confirm("¿Seguro que querés eliminar este turno?")) return;
     try {
-      const res = await fetch(`${API_TURNOS}/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error("No se pudo eliminar el turno");
-      }
-
+      const res = await fetch(`${API_TURNOS}/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
       setTurnos((prev) => prev.filter((t) => t.id !== id));
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Ocurrió un error al eliminar el turno.");
     }
   };
 
   return (
     <div className="page">
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-logo">
           <span className="logo-icon">✦</span>
           <span className="logo-text">Agenda</span>
         </div>
-
         <nav className="sidebar-nav">
-          <div className="nav-item">
+          <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
             <span className="nav-icon">◈</span>
             <span>Turnos</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">◇</span>
-            <span>Clientes</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-icon">◻</span>
-            <span>Servicios</span>
-          </div>
-          <div className="nav-item active">
-            <span className="nav-icon">◯</span>
+          </NavLink>
+          <NavLink to="/historial" className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}>
+            <span className="nav-icon">◷</span>
             <span>Historial</span>
-          </div>
+          </NavLink>
         </nav>
-
         <div className="sidebar-footer">
           <div className="avatar">A</div>
           <div className="avatar-info">
@@ -137,9 +100,7 @@ function HistorialTurnos() {
         </div>
       </aside>
 
-      {/* MAIN */}
       <main className="main">
-        {/* HEADER */}
         <header className="topbar">
           <div className="topbar-left">
             <h1 className="page-title">Historial de Turnos</h1>
@@ -147,16 +108,11 @@ function HistorialTurnos() {
           </div>
           <div className="topbar-right">
             <div className="date-badge">
-              {new Date().toLocaleDateString("es-AR", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              })}
+              {new Date().toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" })}
             </div>
           </div>
         </header>
 
-        {/* STATS */}
         <div className="historial-stats">
           <div className="stat-card">
             <span className="stat-value">{totalTurnos}</span>
@@ -176,13 +132,10 @@ function HistorialTurnos() {
           </div>
         </div>
 
-        {/* FILTERS */}
         <section className="form-card">
           <div className="form-card-header">
             <span className="form-card-title">Filtros</span>
-            <span className="form-card-pill">
-              {turnosFiltrados.length} registro{turnosFiltrados.length !== 1 ? "s" : ""}
-            </span>
+            <span className="form-card-pill">{turnosFiltrados.length} registro{turnosFiltrados.length !== 1 ? "s" : ""}</span>
           </div>
           <div className="historial-filters">
             <div className="field" style={{ flex: 1 }}>
@@ -196,11 +149,7 @@ function HistorialTurnos() {
             </div>
             <div className="field">
               <label className="field-label">Orden</label>
-              <select
-                className="field-input"
-                value={ordenDir}
-                onChange={(e) => setOrdenDir(e.target.value)}
-              >
+              <select className="field-input" value={ordenDir} onChange={(e) => setOrdenDir(e.target.value)}>
                 <option value="desc">Más reciente primero</option>
                 <option value="asc">Más antiguo primero</option>
               </select>
@@ -208,7 +157,6 @@ function HistorialTurnos() {
           </div>
         </section>
 
-        {/* TABLE */}
         <section className="list-card">
           <div className="card-header">
             <span className="card-title">Registro de turnos</span>
@@ -216,20 +164,11 @@ function HistorialTurnos() {
           </div>
 
           {cargando ? (
-            <div className="empty-state">
-              <span className="empty-icon" style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>◌</span>
-              <span>Cargando historial...</span>
-            </div>
+            <div className="empty-state"><span className="empty-icon">◌</span><span>Cargando historial...</span></div>
           ) : error ? (
-            <div className="empty-state">
-              <span className="empty-icon">⚠</span>
-              <span style={{ color: "#ef4444" }}>{error}</span>
-            </div>
+            <div className="empty-state"><span className="empty-icon">⚠</span><span style={{ color: "#ef4444" }}>{error}</span></div>
           ) : turnosFiltrados.length === 0 ? (
-            <div className="empty-state">
-              <span className="empty-icon">◌</span>
-              <span>{busqueda ? "Sin resultados para esa búsqueda" : "No hay turnos en el historial"}</span>
-            </div>
+            <div className="empty-state"><span className="empty-icon">◌</span><span>{busqueda ? "Sin resultados" : "No hay turnos en el historial"}</span></div>
           ) : (
             <div className="historial-table-wrapper">
               <table className="historial-table">
@@ -242,9 +181,7 @@ function HistorialTurnos() {
                     <th className="historial-col-label">DNI</th>
                     <th className="historial-col-label">Teléfono</th>
                     <th className="historial-col-label">Motivo</th>
-                    <th className="historial-col-label" style={{ textAlign: "right" }}>
-                      Acciones
-                    </th>
+                    <th className="historial-col-label" style={{ textAlign: "right" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -258,14 +195,7 @@ function HistorialTurnos() {
                       <td className="historial-cell historial-cell--muted">{t.telefono || "—"}</td>
                       <td className="historial-cell historial-cell--motivo">{t.detalle || "—"}</td>
                       <td style={{ textAlign: "right" }}>
-                        <button
-                          className="delete-btn"
-                          type="button"
-                          onClick={() => handleEliminar(t.id)}
-                          title="Eliminar turno"
-                        >
-                          ×
-                        </button>
+                        <button className="delete-btn" onClick={() => handleEliminar(t.id)} title="Eliminar">×</button>
                       </td>
                     </tr>
                   ))}
