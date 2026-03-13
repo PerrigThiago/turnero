@@ -30,6 +30,22 @@ export const getTurnos = async () => {
   return result.rows;
 };
 
+export const getTurnoById = async (id) => {
+  const result = await pool.query(
+    "SELECT * FROM turno WHERE id = $1",
+    [id]
+  );
+  return result.rows[0];
+};
+
+export const getTurnoByFecha = async (fecha_turno) => {
+  const result = await pool.query(
+    "SELECT * FROM turno WHERE fecha_turno = $1 LIMIT 1",
+    [fecha_turno]
+  );
+  return result.rows[0];
+};
+
 export const updateTurno = async (id, detalle) => {
   const result = await pool.query(
     `UPDATE turno

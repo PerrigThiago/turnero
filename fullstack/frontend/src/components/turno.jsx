@@ -54,8 +54,39 @@ function Turnos() {
   };
 
   const handleSubmit = async () => {
-    if (!horaSeleccionada || !nombre) return;
     setError(null);
+
+    // Validar campos obligatorios en frontend
+    if (
+      !nombre.trim() ||
+      !apellido.trim() ||
+      !dni.trim() ||
+      !telefono.trim() ||
+      !detalle.trim() ||
+      !horaSeleccionada
+    ) {
+      setError("Todos los campos son obligatorios.");
+      return;
+    }
+
+    // Validar que dni y teléfono sean numéricos
+    if (!/^\d+$/.test(dni.trim())) {
+      setError("El DNI debe contener solo números.");
+      return;
+    }
+
+    if (!/^\d+$/.test(telefono.trim())) {
+      setError("El teléfono debe contener solo números.");
+      return;
+    }
+
+    // Validar que los campos de texto no sean solo números
+    const soloNumeros = (v) => /^\d+$/.test(v.trim());
+    if (soloNumeros(nombre) || soloNumeros(apellido) || soloNumeros(detalle)) {
+      setError("Nombre, apellido y detalle deben ser texto, no solo números.");
+      return;
+    }
+
     try {
       const fechaConHora = new Date(fechaSeleccionada);
       const [hh, mm] = horaSeleccionada.split(":");
@@ -69,7 +100,10 @@ function Turnos() {
           fecha_turno: fechaConHora.toISOString(),
         }),
       });
-      if (!resTurno.ok) throw new Error("Error al crear el turno");
+      if (!resTurno.ok) {
+        const errData = await resTurno.json().catch(() => ({}));
+        throw new Error(errData.error || "Error al crear el turno");
+      }
       const turnoCreado = await resTurno.json();
 
       const resUsuario = await fetch(API_USUARIOS, {
@@ -177,6 +211,7 @@ function Turnos() {
               <label className="field-label">Nombre *</label>
               <input
                 className="field-input"
+                type="text"
                 placeholder="Nombre del cliente"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
@@ -186,6 +221,7 @@ function Turnos() {
               <label className="field-label">Apellido</label>
               <input
                 className="field-input"
+                type="text"
                 placeholder="Apellido del cliente"
                 value={apellido}
                 onChange={(e) => setApellido(e.target.value)}
@@ -195,6 +231,8 @@ function Turnos() {
               <label className="field-label">DNI</label>
               <input
                 className="field-input"
+                type="number"
+                inputMode="numeric"
                 placeholder="Número de DNI"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
@@ -204,6 +242,8 @@ function Turnos() {
               <label className="field-label">Teléfono</label>
               <input
                 className="field-input"
+                type="tel"
+                inputMode="numeric"
                 placeholder="Teléfono de contacto"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
@@ -213,6 +253,7 @@ function Turnos() {
               <label className="field-label">Motivo / Detalle</label>
               <input
                 className="field-input"
+                type="text"
                 placeholder="Motivo de la consulta"
                 value={detalle}
                 onChange={(e) => setDetalle(e.target.value)}
@@ -251,9 +292,9 @@ function Turnos() {
                     onClick={() => setHoraSeleccionada(hora)}
                   >
                     <span className="hour-text">{hora}</span>
-                    {ocupado && <span className="hour-tag">Ocupado</span>}
+                    {ocupado && <span className="hour-tag"></span>}
                     {seleccionado && !ocupado && (
-                      <span className="hour-tag">Seleccionado</span>
+                      <span className="hour-tag"></span>
                     )}
                   </button>
                 );
@@ -268,7 +309,14 @@ function Turnos() {
             <button
               className={`save-btn ${guardado ? "guardado" : ""}`}
               onClick={handleSubmit}
-              disabled={!horaSeleccionada || !nombre}
+              disabled={
+                !horaSeleccionada ||
+                !nombre.trim() ||
+                !apellido.trim() ||
+                !dni.trim() ||
+                !telefono.trim() ||
+                !detalle.trim()
+              }
             >
               {guardado ? "✓ Turno guardado" : "Guardar turno"}
             </button>
