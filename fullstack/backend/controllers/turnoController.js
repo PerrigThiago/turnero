@@ -12,6 +12,7 @@ export const actualizarTurno = async (req, res) => {
     res.status(500).json({ error: "Error al actualizar turno" });
   }
 };
+
 export const listarTurnos = async (req, res) => {
   try {
     const turnos = await Turno.getTurnos();
@@ -53,10 +54,16 @@ export const crearTurno = async (req, res) => {
     res.status(500).json({ error: "Error al crear turno" });
   }
 };
+
 export const eliminarTurno = async (req, res) => {
   try {
     const { id } = req.params;
-    await Turno.deleteTurno(id);
+    const eliminado = await Turno.deleteTurno(id);
+
+    if (!eliminado) {
+      return res.status(404).json({ error: "Turno no encontrado" });
+    }
+
     res.json({ mensaje: "Turno eliminado correctamente" });
   } catch (error) {
     console.error("ERROR REAL:", error);
