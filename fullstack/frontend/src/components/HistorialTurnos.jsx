@@ -3,7 +3,9 @@ import { NavLink } from "react-router-dom";
 import "./turno.css";
 import "./historial.css";
 
-const API_TURNOS = "http://localhost:3000/api/turnos";
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_TURNOS = `${API_BASE}/api/turnos`;
 
 function HistorialTurnos() {
   const [turnos, setTurnos] = useState([]);

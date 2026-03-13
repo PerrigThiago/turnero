@@ -5,7 +5,14 @@ import usuarioRoutes from "./routes/usuario_routes.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://turnero-pearl.vercel.app",
+    ],
+  }),
+);
 app.use(express.json());
 
 app.use("/api/turnos", turnosRoutes);

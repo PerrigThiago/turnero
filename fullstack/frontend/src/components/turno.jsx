@@ -4,8 +4,10 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./turno.css";
 
-const API_TURNOS = "http://localhost:3000/api/turnos";
-const API_USUARIOS = "http://localhost:3000/api/usuarios";
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_TURNOS = `${API_BASE}/api/turnos`;
+const API_USUARIOS = `${API_BASE}/api/usuarios`;
 
 function Turnos() {
   const [turnos, setTurnos] = useState([]);
